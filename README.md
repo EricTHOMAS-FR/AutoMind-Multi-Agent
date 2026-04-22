@@ -23,7 +23,7 @@ AMMA est une application de bureau "Zero-Config" hébergeant un écosystème d'a
    ```bash
    pip install -r requirements.txt
    ```
-3. **Modèle IA :** Téléchargez un modèle au format `.gguf`. Par défaut, AMMA est optimisé pour **Gemma 4** (`google_gemma-4-E4B-it-Q4_K_M.gguf`).
+3. **Modèle IA :** Téléchargez un modèle au format `.gguf`. Par défaut, AMMA est optimisé pour **Gemma 4** ex: (`google_gemma-4-E4B-it-Q4_K_M.gguf`).
 4. Placez votre modèle téléchargé dans le dossier `models/`.
 5. Lancez l'application en double-cliquant sur `Lancer_AMMA.bat` (sous Windows) ou en exécutant :
    ```bash
