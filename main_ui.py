@@ -18,15 +18,38 @@ ctk.set_default_color_theme("blue")
 class AMMA_UI(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("AutoMind Multi-Agent (AMMA) - Tableau de Bord")
+        self.title("AMMA - AutoMind Multi-Agent (Optimisé pour Gemma 4)")
         self.geometry("1200x800")
         
-        # 1. ON DÉTECTE LES MODÈLES EN TOUT PREMIER (Indispensable pour la suite)
+        # 1. DÉTECTION INTELLIGENTE DES MODÈLES
         self.model_files = [f for f in os.listdir("models") if f.endswith('.gguf')] if os.path.exists("models") else []
+        self.model_files.sort()
+
         if not self.model_files: 
             self.model_files = ["Aucun modèle"]
+            self.best_default_model = "Aucun modèle"
+        else:
+            self.best_default_model = self.model_files[0]
+            for m in self.model_files:
+                if "gemma-4" in m.lower():
+                    self.best_default_model = m
+                    break
 
-        # 2. ON CHARGE L'ORCHESTRATEUR ET LA CONFIG (Maintenant ils connaissent model_files)
+        # --- LE PATCH ULTIME : AUTO-GUÉRISON DE LA CONFIGURATION ---
+        self.config = self.load_config()
+        saved_model = self.config.get("default_model", "auto")
+        
+        # Si la config dit "auto" ou cherche un modèle supprimé, on met à jour le fichier EN DUR.
+        if saved_model == "auto" or saved_model == "" or saved_model not in self.model_files:
+            self.config["default_model"] = self.best_default_model
+            try:
+                with open("config.json", "w", encoding="utf-8") as f:
+                    json.dump(self.config, f, indent=4)
+            except Exception:
+                pass
+        # -----------------------------------------------------------
+
+        # 2. ON CHARGE L'ORCHESTRATEUR (Il lira maintenant le VRAI nom du modèle !)
         self.orchestrator = AMMA_Orchestrator()
         self.config = self.load_config()
         
@@ -36,11 +59,13 @@ class AMMA_UI(ctk.CTk):
         self.current_chat_view = "Console"
         self.is_generating = False 
         
-        # 4. THÈME ET HISTORIQUES
+        # 4. THÈME ET HISTORIQUES (Message console modifié)
         self.default_btn_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
         self.default_btn_hover = ctk.ThemeManager.theme["CTkButton"]["hover_color"]
         
-        self.chat_histories = {"Console": "--- CONSOLE SYSTÈME ---\nBienvenue. Le système est prêt.\n\n"}
+        self.chat_histories = {
+            "Console": "--- CONSOLE SYSTÈME ---\nBienvenue dans AMMA. Le système est prêt.\nNote : Ce projet est conçu pour fonctionner nativement avec Gemma 4.\n\n"
+        }
         for agent in self.orchestrator.agents:
             self.chat_histories[agent] = f"--- Début de la conversation avec {agent} ---\n\n"
         
@@ -57,10 +82,11 @@ class AMMA_UI(ctk.CTk):
         self.update_engine_params() # Pour mettre à jour les labels
         self.select_frame("Chat")
         
-        # 7. CHARGEMENT DU MODÈLE PAR DÉFAUT (Persistant)
-        # On regarde dans la config quel modèle était choisi, sinon on prend le premier
-        default_m = self.config.get("default_model", self.model_files[0])
+        # 7. CHARGEMENT DU MODÈLE PAR DÉFAUT
+        default_m = self.config.get("default_model", "Aucun modèle")
         if default_m != "Aucun modèle":
+            if hasattr(self, 'model_var'):
+                self.model_var.set(default_m)
             self.on_model_change(default_m)
         
         # 8. LANCEMENT DU WATCHDOG ET DU HEARTBEAT
@@ -185,7 +211,16 @@ class AMMA_UI(ctk.CTk):
         # Configuration du modèle spécifique
         ctk.CTkLabel(self.agent_controls_col, text="🧠 Modèle dédié à cet agent :", anchor="w").pack(fill="x", pady=(10, 5))
         self.agent_specific_model_var = ctk.StringVar(value="Par défaut (Global)")
-        self.agent_model_dropdown = ctk.CTkOptionMenu(self.agent_controls_col, values=["Par défaut (Global)"] + self.model_files, variable=self.agent_specific_model_var, command=self.save_agent_specific_model)
+        
+        # --- NOUVEAU : On filtre "Aucun modèle" pour ne pas l'afficher en double ---
+        agent_models_list = ["Par défaut (Global)"] + [m for m in self.model_files if m != "Aucun modèle"]
+        
+        self.agent_model_dropdown = ctk.CTkOptionMenu(
+            self.agent_controls_col, 
+            values=agent_models_list, 
+            variable=self.agent_specific_model_var, 
+            command=self.save_agent_specific_model
+        )
         self.agent_model_dropdown.pack(pady=(0, 10), fill="x")
 
         # Ressort pour pousser le bouton supprimer vers le bas
@@ -287,11 +322,17 @@ class AMMA_UI(ctk.CTk):
         # --- RÉGLAGE MODÈLE GLOBAL (Dans l'onglet Paramètres) ---
         ctk.CTkLabel(self.settings_container, text="💾 Modèle Global / Fallback", font=ctk.CTkFont(weight="bold")).pack(pady=(30, 0))
         
-        # On récupère le modèle sauvegardé ou le premier par défaut
-        saved_model = self.config.get("default_model", self.model_files[0])
-        self.model_var = ctk.StringVar(value=saved_model)
+        # On utilise le modèle déjà calculé par l'__init__ (plus robuste)
+        # Si un modèle est déjà chargé, on l'affiche, sinon on prend le meilleur par défaut
+        current_val = getattr(self, "current_loaded_model", self.best_default_model)
+        self.model_var = ctk.StringVar(value=current_val)
         
-        self.model_dropdown = ctk.CTkOptionMenu(self.settings_container, values=self.model_files, variable=self.model_var, command=self.on_global_model_change)
+        self.model_dropdown = ctk.CTkOptionMenu(
+            self.settings_container, 
+            values=self.model_files, # Utilise la liste détectée au démarrage
+            variable=self.model_var, 
+            command=self.on_global_model_change
+        )
         self.model_dropdown.pack(pady=10)
         ctk.CTkLabel(self.settings_container, text="Ce modèle sera utilisé par défaut par tous les agents.", font=ctk.CTkFont(size=11), text_color="gray").pack()
 
@@ -624,7 +665,7 @@ class AMMA_UI(ctk.CTk):
         self.txt_instructions.delete("0.0", "end")
         self.txt_instructions.insert("0.0", read("instructions.txt"))
         
-        # --- NOUVEAU : Lecture des deux logs (Propre et Détaillé) ---
+        # --- Lecture des deux logs (Propre et Détaillé) ---
         
         # 1. Le Log Propre (sans les réflexions)
         self.txt_log_clean.configure(state="normal")
@@ -638,14 +679,23 @@ class AMMA_UI(ctk.CTk):
         self.txt_log_detailed.insert("0.0", read("log_detailed.txt"))
         self.txt_log_detailed.configure(state="disabled")
 
-        # --- Synchronisation du menu déroulant du modèle ---
+        # --- Synchronisation du menu déroulant du modèle (AVEC SÉCURITÉ) ---
         try:
             prof_content = read("profile.json")
             if prof_content:
                 prof = json.loads(prof_content)
                 spec_model = prof.get("specific_model")
-                # Si un modèle est défini, on l'affiche, sinon on remet "Par défaut (Global)"
-                self.agent_specific_model_var.set(spec_model if spec_model else "Par défaut (Global)")
+                
+                # PATCH ANTI-CRASH : On vérifie si un modèle spécifique est demandé
+                if spec_model and spec_model != "Par défaut (Global)":
+                    # SÉCURITÉ : Ce modèle existe-t-il VRAIMENT sur le disque ?
+                    if spec_model not in self.model_files:
+                        self.log_console(f"⚠️ Modèle '{spec_model}' introuvable pour l'agent {agent_name}. Retour au modèle Global.")
+                        spec_model = "Par défaut (Global)"
+                else:
+                    spec_model = "Par défaut (Global)"
+                    
+                self.agent_specific_model_var.set(spec_model)
             else:
                 self.agent_specific_model_var.set("Par défaut (Global)")
         except Exception as e:
