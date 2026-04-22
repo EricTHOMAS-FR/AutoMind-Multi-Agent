@@ -7,6 +7,11 @@ import time
 from datetime import datetime
 from orchestrator import AMMA_Orchestrator
 
+# --- SÉCURITÉ : Auto-création des dossiers vitaux ---
+os.makedirs("models", exist_ok=True)
+os.makedirs("tools", exist_ok=True)
+# ----------------------------------------------------
+
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 
@@ -544,12 +549,31 @@ class AMMA_UI(ctk.CTk):
                 self.chat_btn.configure(state="disabled", text="Chargement...")
             
             def loading_task():
-                # On vide l'ancien modèle pour être propre
-                self.orchestrator.engine.llm = None 
-                # On charge le nouveau
-                self.orchestrator.engine.load_model(os.path.join("models", selected_model))
-                # On prévient l'interface que c'est fini
-                self.after(0, self._model_loaded, selected_model)
+                model_path = os.path.join("models", selected_model)
+                
+                # --- SÉCURITÉ 1 : On vérifie que le fichier existe VRAIMENT ---
+                if not os.path.exists(model_path):
+                    self.after(0, self.log_console, f"❌ ERREUR CRITIQUE : Le modèle '{selected_model}' est introuvable. Placez-le dans le dossier 'models/'.")
+                    if hasattr(self, 'chat_btn'):
+                        self.after(0, lambda: self.chat_btn.configure(state="normal", text="Envoyer"))
+                    return # On annule la suite du chargement
+                # --------------------------------------------------------------
+
+                try:
+                    # On vide l'ancien modèle pour libérer la RAM/VRAM
+                    self.orchestrator.engine.llm = None 
+                    
+                    # On charge le nouveau
+                    self.orchestrator.engine.load_model(model_path)
+                    
+                    # On prévient l'interface que c'est fini (Succès)
+                    self.after(0, self._model_loaded, selected_model)
+                    
+                except Exception as e:
+                    # --- SÉCURITÉ 2 : En cas d'erreur interne de Llama.cpp ---
+                    self.after(0, self.log_console, f"❌ ERREUR LORS DU CHARGEMENT : {str(e)}\nLe fichier est peut-être corrompu.")
+                    if hasattr(self, 'chat_btn'):
+                        self.after(0, lambda: self.chat_btn.configure(state="normal", text="Envoyer"))
 
             threading.Thread(target=loading_task, daemon=True).start()
 
