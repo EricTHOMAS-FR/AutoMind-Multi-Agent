@@ -1,0 +1,12 @@
+NOM DE L'OUTIL : Calculatrice
+UTILITÉ : Permet d'effectuer des opérations mathématiques simples et complexes de manière fiable (addition, soustraction, multiplication, division, puissances).
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "calculate".
+N'utilise que des nombres et des opérateurs mathématiques valides (+, -, *, /, **).
+
+RÈGLES CRITIQUES :
+1. Ne mets QUE l'équation mathématique dans l'argument.
+
+Exemple :
+<|tool_call>call:calculate{arg:<|"|>388 * 8948<|"|>}<tool_call|><|tool_response>

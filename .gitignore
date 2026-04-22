@@ -1,0 +1,19 @@
+# Modèles IA (Trop lourds pour GitHub)
+models/*.gguf
+models/*.bin
+
+# Dossiers générés par l'application
+agents/
+templates/
+amma_environment/
+
+# Base de données et Caches
+*.db
+*.sqlite3
+__pycache__/
+*.pyc
+
+# Fichiers de build (PyInstaller)
+build/
+dist/
+*.spec

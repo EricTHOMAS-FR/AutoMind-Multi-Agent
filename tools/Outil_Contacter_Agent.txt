@@ -1,0 +1,16 @@
+NOM DE L'OUTIL : Contacter un Agent (Messagerie Interne)
+UTILITÉ : Permet d'envoyer un message, une question ou une tâche à un autre agent.
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "contact_agent". L'argument doit être un objet JSON strict avec 2 paramètres : "agent" (le nom exact du collègue) et "message" (ta demande détaillée).
+
+⚠️ RÈGLE DE VÉRIFICATION (CRITIQUE) :
+Les noms des agents sont strictement sensibles à la casse ("Bob" n'est pas "bob"). Si l'utilisateur te demande de contacter un agent mais que tu as le moindre doute sur l'orthographe exacte de son nom, tu DOIS d'abord vérifier son existence.
+Utilise l'outil list_files sur le dossier "agents". Le nom exact des dossiers correspondra au nom exact de tes collègues.
+
+EXEMPLE :
+<|tool_call>call:contact_agent{arg:<|"|>{"agent": "Bob", "message": "Salut Bob, peux-tu calculer 894 * 123 pour moi et me renvoyer le résultat ?"}<|"|>}<tool_call|><|tool_response>
+
+RÈGLE D'OR DE L'ASYNCHRONE :
+Quand tu envoies un message, l'autre agent ne te répondra pas instantanément. Ton message est déposé dans sa Boîte de Réception. 
+N'ATTENDS PAS sa réponse pour continuer. Tu peux passer à une autre tâche, ou dire à l'utilisateur que tu as transmis la demande à ton collègue. L'autre agent te recontactera plus tard.

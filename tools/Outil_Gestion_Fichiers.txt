@@ -1,0 +1,16 @@
+NOM DE L'OUTIL : Gestionnaire de Fichiers
+UTILITÉ : Permet de créer ou supprimer des dossiers et des fichiers.
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "manage_file". L'argument doit être un objet JSON strict avec les paramètres de ton action.
+Les valeurs possibles pour "action" sont : "create_folder", "delete_folder", "create_file", "delete_file".
+
+Exemple pour créer un dossier :
+<|tool_call>call:manage_file{arg:<|"|>{"action": "create_folder", "path": "nouveau_dossier_test"}<|"|>}<tool_call|><|tool_response>
+
+Exemple pour créer un fichier avec du texte :
+<|tool_call>call:manage_file{arg:<|"|>{"action": "create_file", "path": "dossier/rapport.txt", "content": "Voici le contenu du fichier."}<|"|>}<tool_call|><|tool_response>
+
+RÈGLES CRITIQUES :
+1. Ne mets QUE le JSON dans l'argument, aucun autre texte.
+2. N'utilise que des chemins relatifs (pas de C:/...).

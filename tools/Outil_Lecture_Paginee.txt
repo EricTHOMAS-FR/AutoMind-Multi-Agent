@@ -1,0 +1,11 @@
+NOM DE L'OUTIL : Lecture Paginée
+UTILITÉ : Permet de lire une tranche précise d'un fichier (parfait pour lire le contexte autour d'une ligne trouvée avec le Chercheur de Texte).
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "read_pages". L'argument doit être un objet JSON strict.
+Paramètres requis : "file" (le chemin), "start" (numéro de la ligne de départ), "end" (numéro de la ligne de fin).
+
+⚠️ RÈGLE DE SÉCURITÉ : Ne lis jamais plus de 300 lignes à la fois pour ne pas surcharger ta mémoire.
+
+Exemple (pour lire de la ligne 100 à 150) :
+<|tool_call>call:read_pages{arg:<|"|>{"file": "agents/Alice/log_detailed.txt", "start": 100, "end": 150}<|"|>}<tool_call|><|tool_response>

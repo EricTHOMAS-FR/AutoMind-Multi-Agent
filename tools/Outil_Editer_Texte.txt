@@ -1,0 +1,16 @@
+NOM DE L'OUTIL : Outil d'Édition de Texte (Search & Replace)
+UTILITÉ : Permet de modifier, corriger ou supprimer du texte dans un fichier (indispensable pour memory.json).
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "edit_file". L'argument doit être un objet JSON strict avec 3 paramètres : "file" (le chemin), "search" (le texte EXACT à remplacer), et "replace" (le nouveau texte).
+
+EXEMPLE 1 (Ajouter une donnée dans une mémoire vide) :
+<|tool_call>call:edit_file{arg:<|"|>{"file": "agents/Alice/memory.json", "search": "[]", "replace": "[\n  {\"mon_information\": 1234}\n]"}<|"|>}<tool_call|><|tool_response>
+
+⚠️ LA RÈGLE DU CONTEXTE UNIQUE (CRITIQUE) :
+L'outil refusera de fonctionner si le texte de "search" apparaît plusieurs fois dans le fichier.
+Pour cibler un élément récurrent (comme un séparateur "---" ou un mot commun), tu DOIS inclure le texte qui se trouve juste avant et juste après pour créer un bloc unique.
+
+EXEMPLE 2 (Supprimer un séparateur qui apparaît plusieurs fois) :
+BON (Inclusion du contexte pour la rendre unique) :
+<|tool_call>call:edit_file{arg:<|"|>{"file": "agents/Alice/memory.json", "search": "Voici le contenu de ta mémoire.\n\n------------------------------\n\n👤 Vous : ok, parfait", "replace": "Voici le contenu de ta mémoire.\n\n👤 Vous : ok, parfait"}<|"|>}<tool_call|><|tool_response>

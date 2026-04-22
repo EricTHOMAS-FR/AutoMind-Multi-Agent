@@ -1,0 +1,15 @@
+NOM DE L'OUTIL : Gestionnaire de Tâches (To-Do List)
+UTILITÉ : Permet de noter tes objectifs en cours pour ne pas les oublier, surtout si tu dois attendre la réponse d'un autre agent. C'est ta mémoire de travail.
+
+COMMENT L'UTILISER :
+
+1. POUR AJOUTER UNE TÂCHE :
+Utilise l'outil "add_task". L'argument est la tâche de manière claire et concise.
+Exemple : <|tool_call>call:add_task{arg:<|"|>Attendre la réponse de Bob pour le calcul de TVA<|"|>}<tool_call|><|tool_response>
+
+2. POUR TERMINER UNE TÂCHE :
+Quand tu as fini une tâche qui était sur ta liste, tu DOIS la rayer en utilisant l'outil "complete_task". L'argument est le texte exact ou un résumé de la tâche.
+Exemple : <|tool_call>call:complete_task{arg:<|"|>Calcul de TVA<|"|>}<tool_call|><|tool_response>
+
+RÈGLE D'OR :
+Avant d'envoyer un message à un autre agent et de te mettre en pause, utilise TOUJOURS add_task pour noter pourquoi tu l'as contacté. Ainsi, à ton réveil, tu sauras exactement ce que tu attendais de lui !

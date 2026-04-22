@@ -1,0 +1,15 @@
+NOM DE L'OUTIL : Bac à sable Python
+UTILITÉ : Permet d'exécuter du code Python pour effectuer des calculs complexes, manipuler des données ou résoudre des problèmes logiques.
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "run_python". L'argument est ton code Python.
+N'utilise PAS de blocs de code markdown (```python) à l'intérieur.
+
+RÈGLES CRITIQUES :
+1. Formate ton code proprement avec de vrais sauts de ligne. N'utilise pas le caractère "\n" littéral.
+2. Attention aux modules obsolètes les bibliothèques DÉPRÉCIÉES provoqueront un crash.
+3. Si ton code échoue, lis attentivement l'erreur console, corrige ton code et relance l'outil. Tu es un développeur autonome.
+
+Exemple :
+<|tool_call>call:run_python{arg:<|"|>resultat = 123 * 456
+print(resultat)<|"|>}<tool_call|><|tool_response>

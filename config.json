@@ -1,0 +1,7 @@
+{
+    "default_model": "google_gemma-4-E4B-it-Q4_K_M.gguf",
+    "temperature": 1.0,
+    "repeat_penalty": 1.0,
+    "heartbeat_enabled": false,
+    "heartbeat_interval": 15
+}

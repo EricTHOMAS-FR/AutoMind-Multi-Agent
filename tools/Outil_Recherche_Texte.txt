@@ -1,0 +1,11 @@
+NOM DE L'OUTIL : Chercheur de Texte
+UTILITÉ : Permet de trouver rapidement à quelles lignes se cache un mot ou une phrase précise dans un gros fichier, sans avoir à le lire en entier.
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "search_text". L'argument doit être un objet JSON strict.
+Paramètres requis : "file" (le chemin du fichier) et "keyword" (le mot ou la phrase à chercher).
+
+Exemple :
+<|tool_call>call:search_text{arg:<|"|>{"file": "agents/Alice/log_detailed.txt", "keyword": "histoire"}<|"|>}<tool_call|><|tool_response>
+
+Le système te renverra les numéros des lignes exactes où ce mot apparaît. Tu pourras ensuite utiliser l'outil de Lecture Paginée pour lire ces zones spécifiques.

@@ -1,0 +1,12 @@
+NOM DE L'OUTIL : Explorateur de Fichiers
+UTILITÉ : Permet de lister le contenu d'un dossier pour trouver des fichiers, vérifier leur nom exact, ou naviguer dans l'ordinateur.
+
+COMMENT L'UTILISER :
+Utilise la syntaxe native avec le nom d'outil "list_files". L'argument est le chemin du dossier.
+Le système te renverra la liste en précisant la nature de chaque élément :
+- 📁 [DOSSIER] : C'est un sous-dossier. Tu peux utiliser list_files dessus pour voir ce qu'il contient (ex: <|tool_call>call:list_files{arg:<|"|>agents/Alice<|"|>}<tool_call|><|tool_response>).
+- 📄 [FICHIER] : C'est un document. Tu peux le lire avec ton outil natif read_file.
+
+EXEMPLES :
+Pour voir la racine du projet : <|tool_call>call:list_files{arg:<|"|>.<|"|>}<tool_call|><|tool_response>
+Pour voir le dossier des outils : <|tool_call>call:list_files{arg:<|"|>tools<|"|>}<tool_call|><|tool_response>
